@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using EGL;
 
 namespace BlisterUI.Widgets {
     public class TextWidget : BaseWidget {
@@ -21,11 +21,11 @@ namespace BlisterUI.Widgets {
                 Recompute();
             }
         }
-        public Color Color {
+        public Vector4 Color {
             get { return drawText.color; }
             set { drawText.color = value; }
         }
-        public string Text {
+        public virtual string Text {
             get { return drawText.Text; }
             set {
                 drawText.Text = value;
@@ -37,13 +37,13 @@ namespace BlisterUI.Widgets {
             : base(r) {
             Font = f == null ? r.DefaultFont : f;
         }
+        protected override void DisposeOther() {
+        }
 
         public override void PreInit() {
             drawText = new DrawableText();
             drawText.Text = "";
             OnRecompute += OnSelfCompute;
-        }
-        protected override void DisposeOther() {
         }
 
         public override void AddAllDrawables(WidgetRenderer r) {
@@ -53,7 +53,7 @@ namespace BlisterUI.Widgets {
             r.Remove(drawText);
         }
 
-        private void OnSelfCompute(BaseWidget w) {
+        protected virtual void OnSelfCompute(BaseWidget w) {
             drawText.TextHeight = Height;
             drawText.location = new Vector2(X, Y);
             drawText.layerDepth = layer;

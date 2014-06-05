@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
     public sealed class GamePadManager {
-        public PlayerIndex Index {
+        public int Index {
             get;
             private set;
         }
@@ -20,17 +20,28 @@ namespace BlisterUI.Input {
             get { return pGS; }
         }
 
-        public GamePadManager(PlayerIndex i) {
+        public GamePadManager(int i) {
             Index = i;
             Refresh();
             pGS = cGS;
         }
 
         public bool IsButtonJustPressed(Buttons button) {
-            return cGS.IsButtonDown(button) && pGS.IsButtonUp(button);
+            // TODO
+            switch(button) {
+                case Buttons.A:
+                    return cGS.Buttons.A == ButtonState.Pressed && pGS.Buttons.A == ButtonState.Released;
+                default:
+                    return false;
+            }
         }
         public bool IsButtonJustReleased(Buttons button) {
-            return cGS.IsButtonUp(button) && pGS.IsButtonDown(button);
+            switch(button) {
+                case Buttons.A:
+                    return cGS.Buttons.A == ButtonState.Released && pGS.Buttons.A == ButtonState.Pressed;
+                default:
+                    return false;
+            }
         }
 
         public void Refresh() {

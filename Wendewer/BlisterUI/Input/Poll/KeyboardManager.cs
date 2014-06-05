@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
     public class KeyboardManager {
-        private static readonly Keys[] allKeys;
+        private static readonly Key[] allKeys;
         static KeyboardManager() {
-            allKeys = (Keys[])Enum.GetValues(typeof(Keys));
+            allKeys = (Key[])Enum.GetValues(typeof(Key));
         }
 
         protected KeyboardState cKS, pKS;
@@ -20,17 +20,17 @@ namespace BlisterUI.Input {
             get { return pKS; }
         }
 
-        public IEnumerable<Keys> AllKeysJustPressed {
+        public IEnumerable<Key> AllKeysJustPressed {
             get {
-                foreach(Keys k in allKeys) {
+                foreach(Key k in allKeys) {
                     if(IsKeyJustPressed(k))
                         yield return k;
                 }
             }
         }
-        public IEnumerable<Keys> AllKeysJustReleased {
+        public IEnumerable<Key> AllKeysJustReleased {
             get {
-                foreach(Keys k in allKeys) {
+                foreach(Key k in allKeys) {
                     if(IsKeyJustReleased(k))
                         yield return k;
                 }
@@ -42,10 +42,10 @@ namespace BlisterUI.Input {
             pKS = cKS;
         }
 
-        public bool IsKeyJustPressed(Keys key) {
+        public bool IsKeyJustPressed(Key key) {
             return cKS.IsKeyDown(key) && pKS.IsKeyUp(key);
         }
-        public bool IsKeyJustReleased(Keys key) {
+        public bool IsKeyJustReleased(Key key) {
             return cKS.IsKeyUp(key) && pKS.IsKeyDown(key);
         }
 

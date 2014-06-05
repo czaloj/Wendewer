@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
+using OpenTK;
+using OpenTK.Graphics;
 
-namespace System {
+namespace System.IO {
     public static class ZXPCExt {
         public static readonly char[] VALUE_DELIMITERS = { ',', '|', ';' };
-        public static void AddXNATypes() {
+        public static void AddVecTypes() {
             ZXParser.AddConverter(typeof(Vector2), new ZXPCVector2());
             ZXParser.AddConverter(typeof(Vector3), new ZXPCVector3());
             ZXParser.AddConverter(typeof(Vector4), new ZXPCVector4());
             ZXParser.AddConverter(typeof(Point), new ZXPCPoint());
-            ZXParser.AddConverter(typeof(Color), new ZXPCColor());
+            ZXParser.AddConverter(typeof(Color4), new ZXPCColor());
             ZXParser.AddConverter(typeof(Rectangle), new ZXPCRectangle());
             ZXParser.AddConverter(typeof(BoundingBox), new ZXPCBBox());
         }
@@ -120,7 +122,7 @@ namespace System {
     public class ZXPCPoint : IZXPConverter {
         public string ParsingType { get { return "Point"; } }
         public bool Convert(string s, out object value) {
-            Point v = Point.Zero;
+            Point v = Point.Empty;
             value = v;
             int f;
             string[] splits = s.Split(ZXPCExt.VALUE_DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
@@ -152,7 +154,7 @@ namespace System {
     public class ZXPCColor : IZXPConverter {
         public string ParsingType { get { return "Color"; } }
         public bool Convert(string s, out object value) {
-            Color v = Color.Transparent;
+            Color4 v = Color4.Transparent;
             value = v;
             byte f;
             string[] splits = s.Split(ZXPCExt.VALUE_DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
@@ -178,15 +180,14 @@ namespace System {
         }
         public string Convert(object value) {
             if(value == null) return "Null";
-            Color v = (Color)value;
-            if(v == null) return "Null";
+            Color4 v = (Color4)value;
             return string.Format("{0} , {1} , {2}, {3}", v.R, v.G, v.B, v.A);
         }
     }
     public class ZXPCRectangle : IZXPConverter {
         public string ParsingType { get { return "Rectangle"; } }
         public bool Convert(string s, out object value) {
-            Rectangle v = Rectangle.Empty;
+            Rectangle v = new Rectangle(0, 0, 1, 1);
             value = v;
             int f;
             string[] splits = s.Split(ZXPCExt.VALUE_DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
@@ -213,7 +214,6 @@ namespace System {
         public string Convert(object value) {
             if(value == null) return "Null";
             Rectangle v = (Rectangle)value;
-            if(v == null) return "Null";
             return string.Format("{0} , {1} , {2}, {3}", v.X, v.Y, v.Width, v.Height);
         }
     }
@@ -248,7 +248,6 @@ namespace System {
         public string Convert(object value) {
             if(value == null) return "Null";
             BoundingBox v = (BoundingBox)value;
-            if(v == null) return "Null";
             return string.Format("{0} - {1}", vec3Conv.Convert(v.Min), vec3Conv.Convert(v.Max));
         }
     }

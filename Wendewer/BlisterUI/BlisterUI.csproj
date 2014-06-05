@@ -9,6 +9,7 @@
     <RootNamespace>BlisterUI</RootNamespace>
     <AssemblyName>BlisterUI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -38,11 +39,12 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="mscorlib">
       <Private>False</Private>
+    </Reference>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EXTLIB\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System">
@@ -67,9 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input\Poll\GamePadManager.cs" />
-    <Compile Include="Input\Handlers.cs" />
     <Compile Include="Input\TextInput.cs" />
-    <Compile Include="Input\WMHookInput.cs" />
     <Compile Include="Input\Poll\InputManager.cs" />
     <Compile Include="Input\KeyboardEventDispatcher.cs" />
     <Compile Include="Input\Poll\KeyboardManager.cs" />
@@ -88,6 +88,8 @@
     <Compile Include="Widgets\RectWidget.cs" />
     <Compile Include="Widgets\ScrollBar.cs" />
     <Compile Include="Widgets\ScrollMenu.cs" />
+    <Compile Include="Widgets\TextButton.cs" />
+    <Compile Include="Widgets\TextInputWidget.cs" />
     <Compile Include="Widgets\TextWidget.cs" />
     <Compile Include="Widgets\WidgetHelpers.cs" />
     <Compile Include="Widgets\WidgetRenderer.cs" />
@@ -96,6 +98,10 @@
     <ProjectReference Include="..\CommonExt\CommonExt.csproj">
       <Project>{c3fcb10d-3f6d-45cb-8b75-4897c73bc502}</Project>
       <Name>CommonExt</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ZGL\EGL.csproj">
+      <Project>{046a5721-7d4e-44db-bdc8-58762c84ac7e}</Project>
+      <Name>EGL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using OpenTK.Graphics;
+using EGL;
+using OpenTK.Graphics.OpenGL4;
 
 namespace BlisterUI
 {
@@ -20,7 +21,7 @@ namespace BlisterUI
 
         public override void Build()
         {
-            logoList.build(game.GraphicsDevice);
+            logoList.build(ViewSize);
         }
         public override void Destroy(GameTime gameTime)
         {
@@ -37,7 +38,7 @@ namespace BlisterUI
 
         public override void Update(GameTime gameTime)
         {
-            if (logoList.update((float)gameTime.ElapsedGameTime.TotalSeconds))
+            if (logoList.update((float)gameTime.Elapsed))
             {
                 State = ScreenState.ChangeNext;
                 return;
@@ -45,10 +46,11 @@ namespace BlisterUI
         }
         public override void Draw(GameTime gameTime)
         {
-            game.GraphicsDevice.Clear(Color.Black);
-            game.SpriteBatch.Begin();
-            logoList.draw(game.SpriteBatch);
-            game.SpriteBatch.End();
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.ClearColor(Color4.Black);
+            //game.SpriteBatch.Begin();
+            //logoList.draw(game.SpriteBatch);
+            //game.SpriteBatch.End();
         }
 
         public class Logo : IDisposable
@@ -57,11 +59,11 @@ namespace BlisterUI
             protected float timeIn, fade;
             protected LinkedList<FadeOptions> fades;
 
-            public Color Color;
+            public Color4 Color;
             public float Rotation;
             protected Vector2 size, scale, location, tSize, tCenter;
             protected string tPath;
-            protected Texture2D texture;
+            protected GLTexture texture;
 
             protected Logo next, previous;
 
@@ -79,15 +81,14 @@ namespace BlisterUI
                 this.size = size;
             }
 
-            public void build(GraphicsDevice g)
+            public void build(Vector2 vs)
             {
-                using (FileStream fs = File.Open(tPath, FileMode.Open))
-                {
-                    texture = Texture2D.FromStream(g, fs);
-                }
-                tSize = new Vector2(texture.Width, texture.Height);
+                //using(FileStream fs = File.Open(tPath, FileMode.Open)) {
+                //    texture = Texture2D.FromStream(g, fs);
+                //}
+                //tSize = new Vector2(texture.Width, texture.Height);
                 tCenter = tSize / 2f;
-                location = new Vector2(g.Viewport.Width, g.Viewport.Height) / 2f;
+                location = vs / 2f;
 
                 setSize(tSize);
             }
@@ -138,10 +139,10 @@ namespace BlisterUI
                 return next != null;
             }
 
-            public void draw(SpriteBatch batch)
-            {
-                batch.Draw(texture, location, null, Color, Rotation, tCenter, scale, SpriteEffects.None, 0f);
-            }
+            //public void draw(SpriteBatch batch)
+            //{
+            //    batch.Draw(texture, location, null, Color, Rotation, tCenter, scale, SpriteEffects.None, 0f);
+            //}
 
             public abstract class FadeOptions
             {
@@ -193,9 +194,9 @@ namespace BlisterUI
             }
             public class FadeColorOptions : FadeTimelineOptions
             {
-                Color c1, c2;
+                Color4 c1, c2;
 
-                public FadeColorOptions(Logo l, float pStart, float pEnd, Color col1, Color col2)
+                public FadeColorOptions(Logo l, float pStart, float pEnd, Color4 col1, Color4 col2)
                     : base(l, pStart, pEnd)
                 {
                     c1 = col1;
@@ -204,7 +205,7 @@ namespace BlisterUI
 
                 public override void applyTrueFade(float pFade)
                 {
-                    logo.Color = Color.Lerp(c1, c2, pFade);
+                    logo.Color = c1.Lerp(c2, pFade);
                 }
 
             }
@@ -267,11 +268,11 @@ namespace BlisterUI
                 reset();
             }
 
-            public void build(GraphicsDevice g)
+            public void build(Vector2 vs)
             {
                 foreach (Logo l in logos)
                 {
-                    l.build(g);
+                    l.build(vs);
                 }
             }
 
@@ -294,10 +295,10 @@ namespace BlisterUI
                 }
                 return current == null;
             }
-            public void draw(SpriteBatch batch)
-            {
-                current.draw(batch);
-            }
+            //public void draw(SpriteBatch batch)
+            //{
+            //    current.draw(batch);
+            //}
 
             public void Dispose()
             {

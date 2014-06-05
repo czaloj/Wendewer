@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 using System.Windows.Input;
 using WinKB = System.Windows.Input.Keyboard;
 using KEA = System.Windows.Input.KeyEventArgs;
@@ -41,9 +41,9 @@ namespace BlisterUI.Input {
     /// </summary>
     public static class WMHookInput {
         // Mouse Handlers
-        public static event MouseMotionHandler OnMouseMotion;
-        public static event MouseButtonHandler OnMouseButton;
-        public static event MouseWheelHandler OnMouseWheel;
+        //public static event MouseMotionHandler OnMouseMotion;
+        //public static event MouseButtonHandler OnMouseButton;
+        //public static event MouseWheelHandler OnMouseWheel;
 
         delegate IntPtr WndProc(IntPtr hWnd, WM_EVENT msg, IntPtr wParam, IntPtr lParam);
 
@@ -66,14 +66,14 @@ namespace BlisterUI.Input {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        public static void Initialize(GameWindow window) {
+        public static void Initialize(IntPtr windowHandle) {
             if(created) throw new InvalidOperationException("WinHook Can Only Initialize Once");
             created = true;
 
             hookProcDelegate = HookProc;
-            prevWndProc = (IntPtr)SetWindowLong(window.Handle, GWL_WNDPROC, (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
+            prevWndProc = (IntPtr)SetWindowLong(windowHandle, GWL_WNDPROC, (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
 
-            hIMC = ImmGetContext(window.Handle);
+            hIMC = ImmGetContext(windowHandle);
 
             MouseEventDispatcher.SetToHook();
         }
@@ -94,10 +94,10 @@ namespace BlisterUI.Input {
 
                 // Key Events
                 case WM_EVENT.KEY_DOWN:
-                    KeyboardEventDispatcher.EventInput_KeyDown(null, (Keys)wParam);
+                    KeyboardEventDispatcher.EventInput_KeyDown(null, (Key)wParam);
                     break;
                 case WM_EVENT.KEY_UP:
-                    KeyboardEventDispatcher.EventInput_KeyUp(null, (Keys)wParam);
+                    KeyboardEventDispatcher.EventInput_KeyUp(null, (Key)wParam);
                     break;
                 case WM_EVENT.KEY_CHAR:
                     KeyboardEventDispatcher.EventInput_CharEntered(null, (char)wParam, lParam.ToInt32());

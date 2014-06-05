@@ -4,16 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Control = System.Windows.Forms.Control;
-using WinKeys = System.Windows.Forms.Keys;
+using OpenTK;
 
-namespace BlisterUI.Input {
-    public delegate void ReceiveChar(object sender, CharacterEventArgs args);
-    public delegate void ReceiveCommand(object sender, CharacterEventArgs args);
-    public delegate void OnKeyStateChange(object sender, KeyEventArgs args);
-
+namespace OpenTK.Input {
     public static class ControlCharacters {
         public const char CtrlA = (char)0x01;
         public const char CtrlB = (char)0x02;
@@ -41,6 +34,7 @@ namespace BlisterUI.Input {
         public const char CtrlX = (char)0x18;
         public const char CtrlY = (char)0x19;
         public const char CtrlZ = (char)0x1a;
+
         public const char CtrlOpenBrackets = (char)0x1b;
         public const char CtrlForwardSlash_Pipe = (char)0x1c;
         public const char CtrlCloseBrackets = (char)0x1d;
@@ -59,31 +53,9 @@ namespace BlisterUI.Input {
     }
 
     public static class KeyboardEventDispatcher {
-        private static ModifierList Modifiers;
-        public static ModifierList GetCurrentModifiers() {
-            return Modifiers;
-        }
-        public static void RefreshModfiers() {
-            Modifiers.ShiftPressed = 0;
-            if((GetKeyState(0xa0) & 0x8000) != 0) { Modifiers.ShiftPressed++; }
-            if((GetKeyState(0xa1) & 0x8000) != 0) { Modifiers.ShiftPressed++; }
-
-            Modifiers.ControlPressed = 0;
-            if((GetKeyState(0xa2) & 0x8000) != 0) { Modifiers.ControlPressed++; }
-            if((GetKeyState(0xa3) & 0x8000) != 0) { Modifiers.ControlPressed++; }
-
-            Modifiers.AltPressed = 0;
-            if((GetKeyState(0xa4) & 0x8000) != 0) { Modifiers.AltPressed++; }
-            if((GetKeyState(0xa5) & 0x8000) != 0) { Modifiers.AltPressed++; }
-        }
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        static extern short GetKeyState(int keyCode);
-
-        public static event ReceiveChar ReceiveChar;
-        public static event ReceiveCommand ReceiveCommand;
-        public static event OnKeyStateChange OnKeyPressed;
-        public static event OnKeyStateChange OnKeyReleased;
+        public static event EventHandler<KeyPressEventArgs> ReceiveChar;
+        public static event EventHandler<KeyboardKeyEventArgs> OnKeyPressed;
+        public static event EventHandler<KeyboardKeyEventArgs> OnKeyReleased;
 
         static string clipboard = "";
         public static string Clipboard {
@@ -92,51 +64,17 @@ namespace BlisterUI.Input {
             }
         }
 
-        static KeyboardEventDispatcher() {
-            //Get All The Modifiers In The Beginning
-            Modifiers = new ModifierList();
-            Modifiers.CapsLockState = Control.IsKeyLocked(WinKeys.CapsLock);
-            Modifiers.NumLockState = Control.IsKeyLocked(WinKeys.NumLock);
-            Modifiers.ScrollLockState = Control.IsKeyLocked(WinKeys.Scroll);
-            RefreshModfiers();
-            OnKeyPressed +=
-                (sender, args) => {
-                    switch(args.KeyCode) {
-                        case Keys.CapsLock: Modifiers.CapsLockState = !Modifiers.CapsLockState; return;
-                        case Keys.Scroll: Modifiers.ScrollLockState = !Modifiers.ScrollLockState; return;
-                        case Keys.NumLock: Modifiers.NumLockState = !Modifiers.NumLockState; return;
-                    }
-                };
+        public static void EventInput_KeyDown(object sender, KeyboardKeyEventArgs e) {
+            if(OnKeyPressed != null)
+                OnKeyPressed(sender, e);
         }
-
-        public static void EventInput_KeyDown(object sender, Keys key) {
-            RefreshModfiers();
-            if(OnKeyPressed != null) {
-                OnKeyPressed(sender, new KeyEventArgs(
-                    key
-                    ));
-            }
+        public static void EventInput_KeyUp(object sender, KeyboardKeyEventArgs e) {
+            if(OnKeyReleased != null)
+                OnKeyReleased(sender, e);
         }
-        public static void EventInput_KeyUp(object sender, Keys key) {
-            RefreshModfiers();
-            if(OnKeyReleased != null) {
-                OnKeyReleased(sender, new KeyEventArgs(
-                    key
-                    ));
-            }
-        }
-        public static void EventInput_CharEntered(object sender, char c, int lParam) {
-            CharacterEventArgs e = new CharacterEventArgs(c, lParam);
-            if(char.IsControl(e.Character)) {
-                if(ReceiveCommand != null) {
-                    ReceiveCommand(sender, e);
-                }
-            }
-            else {
-                if(ReceiveChar != null) {
-                    ReceiveChar(sender, e);
-                }
-            }
+        public static void EventInput_CharEntered(object sender, KeyPressEventArgs e) {
+            if(ReceiveChar != null)
+                ReceiveChar(sender, e);
         }
 
         public static void SetToClipboard(string s) {

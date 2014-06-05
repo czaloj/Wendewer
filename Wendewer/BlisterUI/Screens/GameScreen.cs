@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using OpenTK.Graphics;
 
 namespace BlisterUI {
     public enum ScreenState {
@@ -20,9 +19,7 @@ namespace BlisterUI {
         int Next { get; }
         int Previous { get; }
         MainGame ParentGame { get; }
-        GraphicsDevice G { get; }
-        ContentManager C { get; }
-        SpriteBatch SB { get; }
+        IGraphicsContext G { get; }
         Vector2 ViewSize { get; }
 
         void SetParentGame(MainGame pgame, int index);
@@ -60,17 +57,11 @@ namespace BlisterUI {
             get { return game; }
         }
         protected MainGame game;
-        public GraphicsDevice G {
-            get { return game.GraphicsDevice; }
-        }
-        public ContentManager C {
-            get { return game.Content; }
-        }
-        public SpriteBatch SB {
-            get { return game.SpriteBatch; }
+        public IGraphicsContext G {
+            get { return game.Context; }
         }
         public Vector2 ViewSize {
-            get { return new Vector2(G.Viewport.Width, G.Viewport.Height); }
+            get { return new Vector2(game.Width, game.Height); }
         }
         public void SetParentGame(MainGame pgame, int index) {
             game = pgame;
@@ -109,17 +100,11 @@ namespace BlisterUI {
             get { return game; }
         }
         protected T game;
-        public GraphicsDevice G {
-            get { return game.GraphicsDevice; }
-        }
-        public ContentManager C {
-            get { return game.Content; }
-        }
-        public SpriteBatch SB {
-            get { return game.SpriteBatch; }
+        public IGraphicsContext G {
+            get { return game.Context; }
         }
         public Vector2 ViewSize {
-            get { return new Vector2(G.Viewport.Width, G.Viewport.Height); }
+            get { return new Vector2(game.Width, game.Height); }
         }
 
         public void SetParentGame(T pgame, int index) {

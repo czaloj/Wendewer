@@ -2,52 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
 
-namespace BlisterUI.Input {
-    public delegate void OnMouseRelease(Vector2 location, MouseButton b);
-    public delegate void OnMousePress(Vector2 location, MouseButton b);
-    public delegate void OnMouseScroll(int value, int displacement);
-    public delegate void OnMouseMotion(Vector2 location, Vector2 movement);
-
+namespace OpenTK.Input {
     public static class MouseEventDispatcher {
-        public static event OnMouseRelease OnMouseRelease;
-        public static event OnMousePress OnMousePress;
-        public static event OnMouseScroll OnMouseScroll;
-        public static event OnMouseMotion OnMouseMotion;
+        public static event EventHandler<MouseButtonEventArgs> OnMouseRelease;
+        public static event EventHandler<MouseButtonEventArgs> OnMousePress;
+        public static event EventHandler<MouseWheelEventArgs> OnMouseScroll;
+        public static event EventHandler<MouseMoveEventArgs> OnMouseMotion;
 
-        static Vector2 cMouse, pMouse;
-        static int totalDeltas = 0;
-
-        public static void SetToHook() {
-            WMHookInput.OnMouseMotion += new MouseMotionHandler(EventInput_MouseMotion);
-            WMHookInput.OnMouseButton += new MouseButtonHandler(EventInput_MouseButton);
-            WMHookInput.OnMouseWheel += new MouseWheelHandler(EventInput_MouseWheel);
-        }
-
-        static void EventInput_MouseMotion(object sender, MouseMotionEventArgs e) {
-            cMouse.X = e.X;
-            cMouse.Y = e.Y;
+        public static void EventInput_MouseMotion(object sender, MouseMoveEventArgs e) {
             if(OnMouseMotion != null)
-                OnMouseMotion(cMouse, cMouse - pMouse);
-            pMouse = cMouse;
+                OnMouseMotion(sender, e);
         }
-        static void EventInput_MouseButton(object sender, MouseButtonEventArgs e) {
-            if(e.State == ButtonState.Pressed) {
+        public static void EventInput_MouseButton(object sender, MouseButtonEventArgs e) {
+            if(e.IsPressed) {
                 if(OnMousePress != null)
-                    OnMousePress(new Vector2(e.X, e.Y), e.Button);
+                    OnMousePress(sender, e);
             }
             else {
                 if(OnMouseRelease != null)
-                    OnMouseRelease(new Vector2(e.X, e.Y), e.Button);
+                    OnMouseRelease(sender, e);
             }
         }
-        static void EventInput_MouseWheel(object sender, MouseWheelEventArgs e) {
-            totalDeltas += e.Deltas;
-            if(OnMouseScroll != null) {
-                OnMouseScroll(totalDeltas, e.Deltas);
-            }
+        public static void EventInput_MouseWheel(object sender, MouseWheelEventArgs e) {
+            if(OnMouseScroll != null)
+                OnMouseScroll(sender, e);
         }
     }
 }

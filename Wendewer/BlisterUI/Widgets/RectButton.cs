@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using BlisterUI.Input;
+using OpenTK;
+using EGL;
+using OpenTK.Input;
 
 namespace BlisterUI.Widgets {
     public struct ButtonHighlightOptions {
         public int Height;
         public int Width;
-        public Color Color;
+        public Vector4 Color;
 
-        public ButtonHighlightOptions(int w, int h, Color c) {
+        public ButtonHighlightOptions(int w, int h, Vector4 c) {
             Width = w;
             Height = h;
             Color = c;
@@ -40,7 +40,7 @@ namespace BlisterUI.Widgets {
                 if(!IsHovered) Height = optInactive.Height;
             }
         }
-        public Color InactiveColor {
+        public Vector4 InactiveColor {
             get { return optInactive.Color; }
             set {
                 optInactive.Color = value;
@@ -63,7 +63,7 @@ namespace BlisterUI.Widgets {
                 if(IsHovered) Height = optActive.Height;
             }
         }
-        public Color ActiveColor {
+        public Vector4 ActiveColor {
             get { return optActive.Color; }
             set {
                 optActive.Color = value;
@@ -81,19 +81,7 @@ namespace BlisterUI.Widgets {
             get { return isHooked; }
         }
 
-        public RectButton(WidgetRenderer r, ButtonHighlightOptions inactive, ButtonHighlightOptions active, Texture2D t = null)
-            : base(r, t) {
-            optInactive = inactive;
-            optActive = active;
-
-            // Set To Default
-            isHooked = false;
-            isHovered = false;
-            Width = optInactive.Width;
-            Height = optInactive.Height;
-            Color = optInactive.Color;
-        }
-        public RectButton(WidgetRenderer r, int w, int h, Color cInactive, Color cActive, Texture2D t = null)
+        public RectButton(WidgetRenderer r, int w, int h, Vector4 cInactive, Vector4 cActive, GLTexture t = null)
             : base(r, t) {
             optInactive = new ButtonHighlightOptions(w, h, cInactive);
             optActive = new ButtonHighlightOptions(w, h, cActive);
@@ -107,6 +95,9 @@ namespace BlisterUI.Widgets {
         }
         protected override void DisposeOther() {
             base.DisposeOther();
+            OnMouseEntry = null;
+            OnButtonPress = null;
+            OnMouseExit = null;
             Unhook();
         }
 
@@ -143,17 +134,15 @@ namespace BlisterUI.Widgets {
             }
         }
 
-        public void OnMouseMotion(Vector2 p, Vector2 d) {
-            int x = (int)p.X;
-            int y = (int)p.Y;
+        public void OnMouseMotion(object sender, MouseMoveEventArgs e) {
             Vector2 r;
-            SetActive(Inside(x, y, out r), p);
+            SetActive(Inside(e.X, e.Y, out r), new Vector2(e.X, e.Y));
         }
-        public void OnMousePress(Vector2 p, MouseButton b) {
-            OnMouseMotion(p, Vector2.Zero);
-            if(b == MouseButton.Left) {
+        public void OnMousePress(object sender, MouseButtonEventArgs e) {
+            OnMouseMotion(this, new MouseMoveEventArgs(e.X, e.Y, 0, 0));
+            if(e.Button == MouseButton.Left) {
                 if(IsHovered && OnButtonPress != null)
-                    OnButtonPress(this, p);
+                    OnButtonPress(this, new Vector2(e.X, e.Y));
             }
         }
     }

@@ -1,0 +1,27 @@
+﻿camera <Wdw.RT.ParallelCamera> {
+    viewPoint   [0, 0, 10]
+    viewDir     [0, 0, -1]
+    viewUp      [0, 1, 0]
+    viewWidth   [5]
+    viewHeight  [5]
+}
+backColor   [0, 0, 0]
+addLight(
+    <Wdw.RT.PointLight> {
+        position    [0, 0, 5]
+        intensity   [1, 0, 0]
+    }
+)
+addSurface(
+    <Wdw.RT.Sphere> {
+        setCenter({0, 1, 0})
+        setRadius({1})
+        shader <Wdw.RT.Lambertian> {
+            diffuseColor    [1, 1, 1]
+        }
+    }
+)
+setImage(<Wdw.RT.RTImage> {
+    setSize({1024} {1024})
+})
+samples [4]

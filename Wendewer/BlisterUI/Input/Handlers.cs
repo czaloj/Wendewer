@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
     public class CharacterEventArgs : EventArgs {
@@ -70,36 +70,33 @@ namespace BlisterUI.Input {
     }
 
     public class KeyEventArgs : EventArgs {
-        private Keys keyCode;
-        public Keys KeyCode {
+        private Key keyCode;
+        public Key KeyCode {
             get { return keyCode; }
         }
 
-        public KeyEventArgs(Keys keyCode) {
+        public KeyEventArgs(Key keyCode) {
             this.keyCode = keyCode;
         }
     }
     public delegate void KeyEventHandler(object sender, KeyEventArgs e);
 
     public class MouseMotionEventArgs : EventArgs {
-        private int x;
-        public int X {
-            get { return x; }
-        }
-        private int y;
-        public int Y {
-            get { return y; }
-        }
+        public readonly int X, Y;
 
         public MouseMotionEventArgs(long lParam) {
-            x = (int)lParam & 0x0000ffff;
-            if(x > 10000) {
-                x = 0;
+            X = (int)lParam & 0x0000ffff;
+            if(X > 10000) {
+                X = 0;
             }
-            y = (int)(lParam >> 16) & 0x0000ffff;
-            if(y > 10000) {
-                y = 0;
+            X = (int)(lParam >> 16) & 0x0000ffff;
+            if(X > 10000) {
+                X = 0;
             }
+        }
+        public MouseMotionEventArgs(int x, int y) {
+            X = x;
+            Y = y;
         }
     }
     public delegate void MouseMotionHandler(object sender, MouseMotionEventArgs e);

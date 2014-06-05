@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using EGL;
 
 namespace BlisterUI.Widgets {
     public class RectWidget : BaseWidget {
         // Where To Draw To Screen
         protected DrawableRect drawRect;
 
-        public Texture2D Texture {
+        public GLTexture Texture {
             get { return drawRect.texture; }
             set { drawRect.texture = value; }
         }
-        public Color Color {
+        public Vector4 Color {
             get { return drawRect.color; }
             set { drawRect.color = value; }
         }
 
-        public RectWidget(WidgetRenderer r, Texture2D t = null)
+        public RectWidget(WidgetRenderer r, GLTexture t = null)
             : base(r) {
             Texture = t == null ? r.DefaultTexture : t;
         }
@@ -39,7 +39,10 @@ namespace BlisterUI.Widgets {
         }
 
         private void OnSelfCompute(BaseWidget w) {
-            drawRect.location = widgetRect;
+            drawRect.location.X = widgetRect.X;
+            drawRect.location.Y = widgetRect.Y;
+            drawRect.size.X = widgetRect.Width;
+            drawRect.size.Y = widgetRect.Height;
             drawRect.layerDepth = layer;
         }
     }

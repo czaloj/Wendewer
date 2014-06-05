@@ -2,21 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL4;
 
-namespace BlisterUI
-{
-    public class FalseFirstScreen : GameScreen
-    {
+namespace BlisterUI {
+    public class FalseFirstScreen : GameScreen {
         protected int nS;
         protected bool doNext;
-        public override int Next
-        {
-            get
-            {
-                if (doNext) { return Index; }
+        public override int Next {
+            get {
+                if(doNext) { return Index; }
                 doNext = true;
                 return nS;
             }
@@ -24,35 +20,28 @@ namespace BlisterUI
         }
         public override int Previous { get; protected set; }
 
-        public FalseFirstScreen(int nextScreen)
-        {
+        public FalseFirstScreen(int nextScreen) {
             doNext = false;
             Next = nextScreen;
-            Previous = ScreenList.NoScreen;
+            Previous = ScreenList.NO_SCREEN;
         }
 
-        public override void Build()
-        {
+        public override void Build() {
         }
-        public override void Destroy(GameTime gameTime)
-        {
+        public override void Destroy(GameTime gameTime) {
         }
 
-        public override void OnEntry(GameTime gameTime)
-        {
+        public override void OnEntry(GameTime gameTime) {
         }
-        public override void OnExit(GameTime gameTime)
-        {
+        public override void OnExit(GameTime gameTime) {
         }
 
-        public override void Update(GameTime gameTime)
-        {
+        public override void Update(GameTime gameTime) {
+        }
+        public override void Draw(GameTime gameTime) {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.ClearColor(Color4.Black);
             State = ScreenState.ChangeNext;
-            return;
-        }
-        public override void Draw(GameTime gameTime)
-        {
-            game.GraphicsDevice.Clear(Color.Black);
         }
     }
 }

@@ -3,105 +3,129 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
+using BlisterUI.Input;
+using OpenTK.Input;
 
 namespace BlisterUI {
-    public abstract class MainGame : Game {
-        protected GraphicsDeviceManager graphics;
-        public GraphicsDeviceManager Graphics { get { return graphics; } }
-        protected SpriteBatch spriteBatch;
-        public SpriteBatch SpriteBatch { get { return spriteBatch; } }
+    public struct GameTime {
+        public double Total;
+        public double Elapsed;
+    }
 
+    public abstract class MainGame : GameWindow {
         // List Of Screens And The Current Screen
         protected ScreenList screenList;
         protected IGameScreen screen;
-        private GameTime lastTime;
+        private GameTime lastTime, curTime;
+
+        public event Action<int, int> OnWindowResize;
 
         public MainGame()
             : base() {
-            graphics = new GraphicsDeviceManager(this);
-            graphics.GraphicsProfile = GraphicsProfile.HiDef;
-            graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            graphics.ApplyChanges();
-            Content.RootDirectory = "Content";
+        }
+
+        protected override void OnLoad(EventArgs e) {
+            base.OnLoad(e);
+            FullInitialize();
+            FullLoad();
+            BuildScreenList();
+            screen = screenList.Current;
+        }
+        protected override void OnUnload(EventArgs e) {
+            base.OnUnload(e);
+
+        }
+
+        public override void Exit() {
+            FullQuit(lastTime);
+            base.Exit();
+        }
+        protected virtual void FullQuit(GameTime gameTime) {
+            if(screen != null) {
+                screen.OnExit(gameTime);
+            }
+            screenList.Destroy(gameTime);
         }
 
         protected abstract void BuildScreenList();
         protected abstract void FullInitialize();
         protected abstract void FullLoad();
 
-        protected override void Initialize() {
-            FullInitialize();
-            base.Initialize();
-        }
-        protected override void LoadContent() {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+        protected override void OnUpdateFrame(FrameEventArgs e) {
+            // Keep Track Of Time
+            curTime.Elapsed = e.Time;
+            curTime.Total += e.Time;
+            lastTime = curTime;
 
-            FullLoad();
-
-            BuildScreenList();
-            screen = screenList.Current;
-        }
-        protected override void UnloadContent() {
-        }
-
-        protected override void Update(GameTime gameTime) {
-            lastTime = gameTime;
             if(screen != null) {
                 switch(screen.State) {
                     case ScreenState.Running:
-                        screen.Update(gameTime);
+                        screen.Update(curTime);
                         break;
                     case ScreenState.ChangeNext:
-                        screen.OnExit(gameTime);
+                        screen.OnExit(curTime);
                         screen = screenList.Next;
                         if(screen != null) {
                             screen.SetRunning();
-                            screen.OnEntry(gameTime);
+                            screen.OnEntry(curTime);
                         }
                         break;
                     case ScreenState.ChangePrevious:
-                        screen.OnExit(gameTime);
+                        screen.OnExit(curTime);
                         screen = screenList.Previous;
                         if(screen != null) {
                             screen.SetRunning();
-                            screen.OnEntry(gameTime);
+                            screen.OnEntry(curTime);
                         }
                         break;
                     case ScreenState.ExitApplication:
                         Exit();
                         return;
                 }
-                base.Update(gameTime);
             }
             else {
                 Exit();
             }
         }
-        protected override void Draw(GameTime gameTime) {
-            lastTime = gameTime;
+        protected override void OnRenderFrame(FrameEventArgs e) {
             if(screen != null && screen.State == ScreenState.Running) {
-                screen.Draw(gameTime);
+                screen.Draw(curTime);
             }
-            base.Draw(gameTime);
+            Context.SwapBuffers();
         }
 
-        protected override void OnExiting(object sender, EventArgs args) {
-            FullQuit(lastTime);
-            base.OnExiting(sender, args);
+        protected override void OnResize(EventArgs e) {
+            base.OnResize(e);
+            GL.Viewport(0, 0, Width, Height);
+            if(OnWindowResize != null)
+                OnWindowResize(Width, Height);
         }
 
-        protected virtual void FullQuit(GameTime gameTime) {
-            if(screen != null) {
-                screen.OnExit(gameTime);
-            }
-            screenList.destroy(gameTime);
+        protected override void OnMouseMove(MouseMoveEventArgs e) {
+            base.OnMouseMove(e);
+            MouseEventDispatcher.EventInput_MouseMotion(this, e);
+        }
+        protected override void OnMouseUp(MouseButtonEventArgs e) {
+            base.OnMouseUp(e);
+            MouseEventDispatcher.EventInput_MouseButton(this, e);
+        }
+        protected override void OnMouseDown(MouseButtonEventArgs e) {
+            base.OnMouseDown(e);
+            MouseEventDispatcher.EventInput_MouseButton(this, e);
+        }
+        protected override void OnKeyDown(KeyboardKeyEventArgs e) {
+            base.OnKeyDown(e);
+            KeyboardEventDispatcher.EventInput_KeyDown(this, e);
+        }
+        protected override void OnKeyUp(KeyboardKeyEventArgs e) {
+            base.OnKeyUp(e);
+            KeyboardEventDispatcher.EventInput_KeyUp(this, e);
+        }
+        protected override void OnKeyPress(KeyPressEventArgs e) {
+            base.OnKeyPress(e);
+            KeyboardEventDispatcher.EventInput_CharEntered(this, e);
         }
     }
 }

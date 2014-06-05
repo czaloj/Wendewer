@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
-    public enum MouseButton {
-        Left,
-        Right,
-        Middle,
-        X1,
-        X2
-    };
 
     public sealed class MouseManager {
         private static readonly MouseButton[] allButtons;
@@ -22,8 +16,8 @@ namespace BlisterUI.Input {
                 MouseButton.Left,
                 MouseButton.Right,
                 MouseButton.Middle,
-                MouseButton.X1,
-                MouseButton.X2
+                MouseButton.Button1,
+                MouseButton.Button2
             };
         }
 
@@ -90,9 +84,9 @@ namespace BlisterUI.Input {
                     return cMS.MiddleButton == ButtonState.Pressed && pMS.MiddleButton == ButtonState.Released;
                 case MouseButton.Right:
                     return cMS.RightButton == ButtonState.Pressed && pMS.RightButton == ButtonState.Released;
-                case MouseButton.X1:
+                case MouseButton.Button1:
                     return cMS.XButton1 == ButtonState.Pressed && pMS.XButton1 == ButtonState.Released;
-                case MouseButton.X2:
+                case MouseButton.Button2:
                     return cMS.XButton2 == ButtonState.Pressed && pMS.XButton2 == ButtonState.Released;
                 default:
                     return false;
@@ -106,9 +100,9 @@ namespace BlisterUI.Input {
                     return cMS.MiddleButton == ButtonState.Released && pMS.MiddleButton == ButtonState.Pressed;
                 case MouseButton.Right:
                     return cMS.RightButton == ButtonState.Released && pMS.RightButton == ButtonState.Pressed;
-                case MouseButton.X1:
+                case MouseButton.Button1:
                     return cMS.XButton1 == ButtonState.Released && pMS.XButton1 == ButtonState.Pressed;
-                case MouseButton.X2:
+                case MouseButton.Button2:
                     return cMS.XButton2 == ButtonState.Released && pMS.XButton2 == ButtonState.Pressed;
                 default:
                     return false;
@@ -138,27 +132,6 @@ namespace BlisterUI.Input {
                 pMS = cMS;
                 cMS = Mouse.GetState();
             }
-        }
-        public void RefreshPosition() {
-            MouseState nMS = Mouse.GetState();
-            pMS = new MouseState(
-                nMS.X, nMS.Y,
-                pMS.ScrollWheelValue,
-                pMS.LeftButton,
-                pMS.MiddleButton,
-                pMS.RightButton,
-                pMS.XButton1,
-                pMS.XButton2
-                );
-            cMS = new MouseState(
-                nMS.X, nMS.Y,
-                nMS.ScrollWheelValue,
-                cMS.LeftButton | nMS.LeftButton,
-                cMS.MiddleButton | nMS.MiddleButton,
-                cMS.RightButton | nMS.RightButton,
-                cMS.XButton1 | nMS.XButton1,
-                cMS.XButton2 | nMS.XButton2
-                );
         }
     }
 }

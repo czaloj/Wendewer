@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
     public sealed class InputManager {
@@ -30,7 +30,7 @@ namespace BlisterUI.Input {
             numPads = 0;
         }
 
-        public void AddGamePad(PlayerIndex index) {
+        public void AddGamePad(int index) {
             if(numPads < 4) {
                 for(int i = 0; i < numPads; i++) {
                     if(gamePadManagers[i].Index == index) {
@@ -41,7 +41,7 @@ namespace BlisterUI.Input {
                 numPads++;
             }
         }
-        public void RemoveGamePad(PlayerIndex index) {
+        public void RemoveGamePad(int index) {
             for(int i = 0; i < numPads; i++) {
                 if(gamePadManagers[i].Index == index) {
                     gamePadManagers[i] = null;

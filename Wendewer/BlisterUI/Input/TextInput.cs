@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework.Input;
+using OpenTK;
+using OpenTK.Input;
 
 namespace BlisterUI.Input {
     public class TextInput : IDisposable {
@@ -22,9 +23,14 @@ namespace BlisterUI.Input {
                     OnTextChanged(this, Text);
             }
         }
+        private int caret;
         public int Caret {
-            get;
-            private set;
+            get { return caret; }
+            private set {
+                caret = value;
+                if(OnCaretMoved != null)
+                    OnCaretMoved(this, Caret);
+            }
         }
         public int Length {
             get { return text.Length; }
@@ -32,6 +38,7 @@ namespace BlisterUI.Input {
 
         public event Action<TextInput, string> OnTextEntered;
         public event Action<TextInput, string> OnTextChanged;
+        public event Action<TextInput, int> OnCaretMoved;
 
         public TextInput() {
             text = new StringBuilder();
@@ -39,6 +46,9 @@ namespace BlisterUI.Input {
             IsActive = false;
         }
         public void Dispose() {
+            OnTextEntered = null;
+            OnTextChanged = null;
+            OnCaretMoved = null;
             Deactivate();
             text.Clear();
             text = null;
@@ -50,7 +60,6 @@ namespace BlisterUI.Input {
 
             KeyboardEventDispatcher.OnKeyPressed += OnKeyPress;
             KeyboardEventDispatcher.ReceiveChar += OnChar;
-            KeyboardEventDispatcher.ReceiveCommand += OnControl;
         }
         public void Deactivate() {
             if(!IsActive) return;
@@ -58,7 +67,6 @@ namespace BlisterUI.Input {
 
             KeyboardEventDispatcher.OnKeyPressed -= OnKeyPress;
             KeyboardEventDispatcher.ReceiveChar -= OnChar;
-            KeyboardEventDispatcher.ReceiveCommand -= OnControl;
         }
 
         public void Insert(char c) {
@@ -89,42 +97,40 @@ namespace BlisterUI.Input {
             Delete();
         }
 
-        public void OnKeyPress(object s, KeyEventArgs args) {
-            switch(args.KeyCode) {
-                case Keys.Enter:
+        public void OnKeyPress(object s, KeyboardKeyEventArgs args) {
+            switch(args.Key) {
+                case Key.Enter:
                     if(text.Length < 1)
                         return;
                     if(OnTextEntered != null)
                         OnTextEntered(this, Text);
                     return;
-                case Keys.Back:
+                case Key.Back:
                     BackSpace();
                     return;
-                case Keys.Delete:
+                case Key.Delete:
                     Delete();
                     return;
-                case Keys.Left:
+                case Key.Left:
                     if(Caret > 0) Caret--;
                     return;
-                case Keys.Right:
+                case Key.Right:
                     if(Caret < Length) Caret++;
                     return;
-            }
-        }
-        public void OnChar(object s, CharacterEventArgs args) {
-            Insert(args.Character);
-        }
-        public void OnControl(object s, CharacterEventArgs args) {
-            switch(args.Character) {
-                case ControlCharacters.CtrlV:
+                case Key.V:
+                    if(args.Modifiers != KeyModifiers.Control) return;
                     string c = KeyboardEventDispatcher.GetNewClipboard();
                     Insert(c);
                     return;
-                case ControlCharacters.CtrlC:
+                case Key.C:
+                    if(args.Modifiers != KeyModifiers.Control) return;
                     if(text.Length > 0)
                         KeyboardEventDispatcher.SetToClipboard(Text);
                     return;
             }
+        }
+        public void OnChar(object s, KeyPressEventArgs args) {
+            Insert(args.KeyChar);
         }
     }
 }

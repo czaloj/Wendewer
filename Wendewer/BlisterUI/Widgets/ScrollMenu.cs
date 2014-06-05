@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
+using OpenTK;
+using EGL;
+using System.Drawing;
+
 
 namespace BlisterUI.Widgets {
     public class ScrollMenu : IDisposable {
@@ -10,66 +13,68 @@ namespace BlisterUI.Widgets {
         const int TEXT_X_OFF = 5;
 
         public RectWidget Widget;
-        private RectButton[] buttons;
-        private TextWidget[] buttonsText;
-        private ScrollBar scrollBar;
+        public TextButton[] Buttons {
+            get;
+            private set;
+        }
+        public ScrollBar ScrollBar {
+            get;
+            private set;
+        }
 
         string[] vText;
         int si;
 
         public bool HasButtons {
-            get { return buttons != null && buttons.Length > 0; }
-        }
-        public bool HasButtonsText {
-            get { return buttonsText != null && buttonsText.Length > 0; }
+            get { return Buttons != null && Buttons.Length > 0; }
         }
         public int ButtonCount {
-            get { return HasButtons ? buttons.Length : 0; }
+            get { return HasButtons ? Buttons.Length : 0; }
         }
         public int DataCount {
             get { return vText.Length; }
         }
         public int FullWidth {
-            get { return Widget.Width + scrollBar.Width; }
+            get { return Widget.Width + ScrollBar.Width; }
         }
 
         public BaseWidget Parent {
             get { return Widget.Parent; }
             set { Widget.Parent = value; }
         }
-        public Color BaseColor {
+        public Vector4 BaseColor {
             get { return Widget.Color; }
             set {
                 Widget.Color = value;
                 if(HasButtons) {
-                    foreach(var b in buttons)
+                    foreach(var b in Buttons)
                         b.InactiveColor = value;
                 }
-                scrollBar.Color = value;
+                ScrollBar.Color = value;
             }
         }
-        public Color HighlightColor {
-            get { return HasButtons ? buttons[0].Color : Color.Transparent; }
+        public Vector4 HighlightColor {
+            get { return HasButtons ? Buttons[0].Color : Vector4.Zero; }
             set {
                 if(HasButtons) {
-                    foreach(var b in buttons)
+                    foreach(var b in Buttons)
                         b.ActiveColor = value;
                 }
-                scrollBar.ScrollButton.ActiveColor = value;
+                ScrollBar.ScrollButton.ActiveColor = value;
             }
         }
-        public Color TextColor {
-            get { return HasButtonsText ? buttonsText[0].Color : Color.Transparent; }
+        public Vector4 TextColor {
+            get { return HasButtons ? Buttons[0].TextColor : Vector4.Zero; }
             set {
-                if(HasButtonsText) {
-                    foreach(var t in buttonsText)
-                        t.Color = value;
+                if(HasButtons) {
+                    foreach(var t in Buttons)
+                        t.TextColor = value;
                 }
             }
         }
-        public Color ScrollBarBaseColor {
-            get { return scrollBar.ScrollButton.InactiveColor; }
-            set { scrollBar.ScrollButton.InactiveColor = value; }
+        public Vector4 ScrollBarBaseColor {
+            get { return ScrollBar.ScrollButton.InactiveColor; }
+            set { ScrollBar.ScrollButton.InactiveColor = value; }
         }
 
         public ScrollMenu(WidgetRenderer wr, int w, int h, int bCount, int sbw, int sbh) {
@@ -77,68 +82,62 @@ namespace BlisterUI.Widgets {
             Widget.Width = w;
             Widget.Height = h * bCount;
 
-            scrollBar = new ScrollBar(wr);
-            scrollBar.IsVertical = true;
-            scrollBar.Width = sbw;
-            scrollBar.ScrollButton.InactiveWidth = scrollBar.Width;
-            scrollBar.ScrollButton.InactiveHeight = sbh;
-            scrollBar.ScrollButton.ActiveWidth = scrollBar.Width;
-            scrollBar.ScrollButton.ActiveHeight = sbh;
-            scrollBar.Height = Widget.Height;
-            scrollBar.OffsetAlignX = Alignment.RIGHT;
-            scrollBar.Parent = Widget;
-            scrollBar.ScrollRatio = 0;
+            ScrollBar = new ScrollBar(wr);
+            ScrollBar.IsVertical = true;
+            ScrollBar.Width = sbw;
+            ScrollBar.ScrollButton.InactiveWidth = ScrollBar.Width;
+            ScrollBar.ScrollButton.InactiveHeight = sbh;
+            ScrollBar.ScrollButton.ActiveWidth = ScrollBar.Width;
+            ScrollBar.ScrollButton.ActiveHeight = sbh;
+            ScrollBar.Height = Widget.Height;
+            ScrollBar.OffsetAlignX = Alignment.RIGHT;
+            ScrollBar.Parent = Widget;
+            ScrollBar.ScrollRatio = 0;
 
 
-            buttons = new RectButton[bCount];
-            buttonsText = new TextWidget[buttons.Length];
-            for(int i = 0; i < buttons.Length; i++) {
-                buttons[i] = new RectButton(wr, Widget.Width, h, Color.Black, Color.White);
+            Buttons = new TextButton[bCount];
+            for(int i = 0; i < Buttons.Length; i++) {
+                Buttons[i] = new TextButton(wr, Widget.Width, h, Vector4.UnitW, Vector4.One);
                 if(i > 0) {
-                    buttons[i].Parent = buttons[i - 1];
-                    buttons[i].OffsetAlignY = Alignment.BOTTOM;
-                    buttons[i].LayerOffset = 0f;
+                    Buttons[i].Parent = Buttons[i - 1];
+                    Buttons[i].OffsetAlignY = Alignment.BOTTOM;
+                    Buttons[i].LayerOffset = 0f;
                 }
                 else {
-                    buttons[i].Parent = Widget;
+                    Buttons[i].Parent = Widget;
                 }
-                buttonsText[i] = new TextWidget(wr);
-                buttonsText[i].Height = (int)(TEXT_H_RATIO * buttons[i].Height);
-                buttonsText[i].Text = "";
-                buttonsText[i].Offset = new Point(TEXT_X_OFF, 0);
-                buttonsText[i].AlignX = Alignment.LEFT;
-                buttonsText[i].AlignY = Alignment.MID;
-                buttonsText[i].OffsetAlignX = Alignment.LEFT;
-                buttonsText[i].OffsetAlignY = Alignment.MID;
-                buttonsText[i].Parent = buttons[i];
+                Buttons[i].TextWidget.Height = (int)(TEXT_H_RATIO * Buttons[i].Height);
+                Buttons[i].Text = "";
+                Buttons[i].TextWidget.Offset = new Point(TEXT_X_OFF, 0);
+                Buttons[i].TextWidget.AlignX = Alignment.LEFT;
+                Buttons[i].TextWidget.OffsetAlignX = Alignment.LEFT;
             }
 
-            BaseColor = Color.Black;
-            HighlightColor = Color.DarkSlateGray;
-            TextColor = Color.White;
-            ScrollBarBaseColor = Color.Red;
+            BaseColor = Vector4.UnitW;
+            HighlightColor = new Vector4(0.05f, 0.05f, 0.05f, 1);
+            TextColor = Vector4.One;
+            ScrollBarBaseColor = new Vector4(1, 0, 0, 1);
         }
         public void Dispose() {
             Widget.Dispose();
-            if(HasButtons) foreach(var b in buttons) b.Dispose();
-            if(HasButtonsText) foreach(var b in buttonsText) b.Dispose();
-            scrollBar.Dispose();
+            if(HasButtons) foreach(var b in Buttons) b.Dispose();
+            ScrollBar.Dispose();
         }
 
         public void Hook() {
             if(HasButtons) {
-                foreach(var b in buttons) {
+                foreach(var b in Buttons) {
                     b.Hook();
                 }
             }
-            scrollBar.Hook();
-            scrollBar.OnScrollValueChanged += ScrollChange;
+            ScrollBar.Hook();
+            ScrollBar.OnScrollValueChanged += ScrollChange;
         }
         public void Unhook() {
-            scrollBar.OnScrollValueChanged -= ScrollChange;
-            scrollBar.Unhook();
+            ScrollBar.OnScrollValueChanged -= ScrollChange;
+            ScrollBar.Unhook();
             if(HasButtons) {
-                foreach(var b in buttons) {
+                foreach(var b in Buttons) {
                     b.Unhook();
                 }
             }
@@ -159,32 +158,32 @@ namespace BlisterUI.Widgets {
             if(si < 0) {
                 int mc = Math.Min(DataCount, ButtonCount);
                 for(int i = 0; i < mc; i++) {
-                    buttonsText[i].Text = vText[i];
+                    Buttons[i].Text = vText[i];
                 }
                 si = 0;
                 return;
             }
             if(lo > 0) {
-                int nsi = (int)((lo + 1) * scrollBar.ScrollRatio);
+                int nsi = (int)((lo + 1) * ScrollBar.ScrollRatio);
                 nsi = Math.Max(0, Math.Min(lo, nsi));
                 if(si != nsi) {
                     si = nsi;
                     for(int i = 0; i < ButtonCount; i++) {
-                        buttonsText[i].Text = vText[i + si];
+                        Buttons[i].Text = vText[i + si];
                     }
                 }
             }
         }
 
         public bool Inside(int x, int y) {
-            return Widget.Inside(x, y) || scrollBar.Inside(x, y);
+            return Widget.Inside(x, y) || ScrollBar.Inside(x, y);
         }
         public string GetSelection(int x, int y) {
             if(!Widget.Inside(x, y)) return null;
 
             for(int i = 0; i < ButtonCount; i++) {
-                if(buttons[i].Inside(x, y))
-                    return buttonsText[i].Text;
+                if(Buttons[i].Inside(x, y))
+                    return Buttons[i].Text;
             }
             return null;
         }

@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using OpenTK.Graphics;
+using EGL;
 
 namespace BlisterUI.Widgets {
     public class DrawableRect {
         // Visual Information
-        public Texture2D texture;
-        public Color color;
+        public GLTexture texture;
+        public Vector4 color;
 
         // Spatial Information
-        public Rectangle location;
+        public Vector2 location;
+        public Vector2 size;
         public float layerDepth;
     }
 
@@ -26,7 +28,7 @@ namespace BlisterUI.Widgets {
                 ComputeScale();
             }
         }
-        public Color color;
+        public Vector4 color;
         private string text;
         public string Text {
             get { return text; }

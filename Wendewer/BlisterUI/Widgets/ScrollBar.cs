@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using BlisterUI.Input;
+using OpenTK;
+using EGL;
+using OpenTK.Input;
+using System.Drawing;
 
 namespace BlisterUI.Widgets {
     public class ScrollBar : RectWidget {
@@ -61,7 +62,7 @@ namespace BlisterUI.Widgets {
 
         private bool isMoving;
 
-        public ScrollBar(WidgetRenderer wr, Texture2D tBase = null, Texture2D tButton = null)
+        public ScrollBar(WidgetRenderer wr, GLTexture tBase = null, GLTexture tButton = null)
             : base(wr, tBase) {
             // Defaults As A Vertical Scrollbar
             isVertical = true;
@@ -78,6 +79,7 @@ namespace BlisterUI.Widgets {
             RefreshScroll();
         }
         protected override void DisposeOther() {
+            OnScrollValueChanged = null;
             base.DisposeOther();
             ScrollButton.Dispose();
         }
@@ -117,11 +119,11 @@ namespace BlisterUI.Widgets {
         void ScrollButton_OnButtonPress(RectButton arg1, Vector2 arg2) {
             isMoving = true;
         }
-        void MouseEventDispatcher_OnMouseRelease(Vector2 location, MouseButton b) {
+        void MouseEventDispatcher_OnMouseRelease(object sender, MouseButtonEventArgs e) {
             isMoving = false;
         }
-        void MouseEventDispatcher_OnMouseMotion(Vector2 location, Vector2 movement) {
-            if(isMoving) MoveScrollBar(movement.X, movement.Y);
+        void MouseEventDispatcher_OnMouseMotion(object sender, MouseMoveEventArgs e) {
+            if(isMoving) MoveScrollBar(e.XDelta, e.YDelta);
         }
     }
 }

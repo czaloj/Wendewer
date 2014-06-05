@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
+using OpenTK.Graphics;
+using EGL;
 
 namespace BlisterUI.Widgets {
     public class WidgetRenderer : IDisposable {
-        private Texture2D tPixel;
-        public Texture2D DefaultTexture {
+        private GLTexture tPixel;
+        public GLTexture DefaultTexture {
             get { return tPixel; }
         }
         private SpriteFont fDefault;
@@ -19,9 +20,15 @@ namespace BlisterUI.Widgets {
         private readonly List<DrawableRect> rects;
         private readonly List<DrawableText> texts;
 
-        public WidgetRenderer(GraphicsDevice g, SpriteFont f) {
-            tPixel = new Texture2D(g, 1, 1);
-            tPixel.SetData(new Color[] { Color.White });
+        public WidgetRenderer(SpriteFont f) {
+            tPixel = new GLTexture().Init();
+            tPixel.InternalFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgba;
+            tPixel.SetImage(
+                new int[] { 1, 1, 0 },
+                OpenTK.Graphics.OpenGL4.PixelFormat.Rgba,
+                OpenTK.Graphics.OpenGL4.PixelType.UnsignedByte,
+                System.Runtime.InteropServices.Marshal.UnsafeAddrOfPinnedArrayElement(new uint[] { 0xffffffff }, 0)
+                );
             fDefault = f;
 
             rects = new List<DrawableRect>();
@@ -44,18 +51,15 @@ namespace BlisterUI.Widgets {
             texts.Remove(t);
         }
 
-        public void Draw(SpriteBatch batch) {
-            batch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
+        public void Draw(SpriteBatch batch, int w, int h) {
+            batch.Begin();
             for(int i = 0; i < rects.Count; i++) {
                 // Draw Rectangle
                 batch.Draw(
                     rects[i].texture == null ? tPixel : rects[i].texture,
                     rects[i].location,
-                    null,
+                    rects[i].size,
                     rects[i].color,
-                    0f,
-                    Vector2.Zero,
-                    SpriteEffects.None,
                     rects[i].layerDepth
                     );
             }
@@ -67,15 +71,20 @@ namespace BlisterUI.Widgets {
                     texts[i].Font,
                     texts[i].Text,
                     texts[i].location,
+                    new Vector2(texts[i].TextScale),
                     texts[i].color,
-                    0f,
-                    Vector2.Zero,
-                    texts[i].TextScale,
-                    SpriteEffects.None,
                     texts[i].layerDepth
                     );
             }
-            batch.End();
+            batch.End(SpriteSortMode.BackToFront);
+            batch.RenderBatch(
+                BlendState.AlphaBlend,
+                SamplerState.LinearClamp,
+                DepthState.None,
+                RasterizerState.CullNone,
+                Matrix4.Identity,
+                SpriteBatch.CreateCameraFromWindow(w, h)
+                );
         }
     }
 }

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
+using OpenTK;
+using EGL;
 
-namespace Microsoft.Xna.Framework.Graphics {
+namespace EGL {
     public static class TextCaretHelper {
         public static Vector3 GetCaretOffsetAndHeight(this SpriteFont font, string text, int i) {
             StringBuilder sb = new StringBuilder();
@@ -13,7 +14,7 @@ namespace Microsoft.Xna.Framework.Graphics {
             int ci = 0;
             while(ci < i) {
                 if(text[ci] == '\n') {
-                    pos.Y += font.LineSpacing;
+                    pos.Y += font.FontHeight;
                     sb.Clear();
                 }
                 else {
@@ -27,7 +28,7 @@ namespace Microsoft.Xna.Framework.Graphics {
                 pos.Z = ts.Y;
             }
             else {
-                pos.Z = font.LineSpacing;
+                pos.Z = font.FontHeight;
             }
             return pos;
         }

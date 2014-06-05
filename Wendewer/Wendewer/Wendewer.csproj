@@ -11,6 +11,7 @@
     <AssemblyName>Wendewer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -29,13 +30,16 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Wdw.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Content.Pipeline, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EXTLIB\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,7 +53,86 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="AppScreen.cs" />
+    <Compile Include="Common\Data\MasterData.cs" />
+    <Compile Include="Common\Data\MaterialData.cs" />
+    <Compile Include="Common\Data\MeshData.cs" />
+    <Compile Include="Common\Data\ObjectData.cs" />
+    <Compile Include="Common\Data\SceneData.cs" />
+    <Compile Include="Common\Data\TextureData.cs" />
+    <Compile Include="Common\Events\DataEvent.cs" />
+    <Compile Include="Common\Operators\Data\OpDataObjectSelect.cs" />
+    <Compile Include="Common\Operators\Data\OpDataAddObject.cs" />
+    <Compile Include="Common\Operators\OpBase.cs" />
+    <Compile Include="Common\Operators\Data\OpDataClear.cs" />
+    <Compile Include="Common\Operators\Data\OpDataAddMesh.cs" />
+    <Compile Include="Common\Operators\OperatorList.cs" />
+    <Compile Include="Common\Property\BaseProperty.cs" />
+    <Compile Include="Common\Property\PropertyList.cs" />
+    <Compile Include="Common\Property\SimpleProps.cs" />
+    <Compile Include="GLView\Data\MaterialView.cs" />
+    <Compile Include="GLView\Data\MeshView.cs" />
+    <Compile Include="GLView\Data\ObjectView.cs" />
+    <Compile Include="GLView\PickingMaterial.cs" />
+    <Compile Include="GLView\Renderer.cs" />
+    <Compile Include="GLView\Data\TextureView.cs" />
+    <Compile Include="GLView\UI\MenuOptions.cs" />
+    <Compile Include="GLView\UI\OperatorPanel.cs" />
+    <Compile Include="GLView\UI\Props\BoolWidget.cs" />
+    <Compile Include="GLView\UI\Props\FloatWidget.cs" />
+    <Compile Include="GLView\UI\RenderPanel.cs" />
+    <Compile Include="GLView\UI\UIRoot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RT\Lights\Light.cs" />
+    <Compile Include="RT\Lights\PointLight.cs" />
+    <Compile Include="RT\Math\BVH.cs" />
+    <Compile Include="RT\Math\Ext.cs" />
+    <Compile Include="RT\Math\IAccelStruct.cs" />
+    <Compile Include="RT\Math\IntersectionRecord.cs" />
+    <Compile Include="RT\Math\NaiveAccelStruct.cs" />
+    <Compile Include="RT\Math\RTRay.cs" />
+    <Compile Include="RT\RayTracer.cs" />
+    <Compile Include="RT\RTCamera.cs" />
+    <Compile Include="RT\RTImage.cs" />
+    <Compile Include="RT\Scene.cs" />
+    <Compile Include="RT\Shaders\Lambertian.cs" />
+    <Compile Include="RT\Shaders\Shader.cs" />
+    <Compile Include="RT\Surfaces\Box.cs" />
+    <Compile Include="RT\Surfaces\Sphere.cs" />
+    <Compile Include="RT\Surfaces\Surface.cs" />
+    <Content Include="data\shaders\pick.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\pick.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\SB.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\SB.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\texture.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\texture.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\Simple.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\Simple.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\shaders\simple.fx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\textures\Simple.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\textures\Cube.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -60,6 +143,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Content Include="data\meshes\Cube.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -71,7 +158,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="RT\" />
+    <Content Include="data\scenes\test.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlisterUI\BlisterUI.csproj">
@@ -82,7 +171,12 @@
       <Project>{c3fcb10d-3f6d-45cb-8b75-4897c73bc502}</Project>
       <Name>CommonExt</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ZGL\EGL.csproj">
+      <Project>{046a5721-7d4e-44db-bdc8-58762c84ac7e}</Project>
+      <Name>EGL</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

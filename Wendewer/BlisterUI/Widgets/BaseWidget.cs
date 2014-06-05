@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
 
 namespace BlisterUI.Widgets {
+    // Alignment Values
     public static class Alignment {
         public const int MIN = 0;
         public const int MID = 1;
@@ -18,6 +19,7 @@ namespace BlisterUI.Widgets {
     }
 
     public abstract class BaseWidget : IDisposable {
+        // Default Depth Values
         public const float LAYER_DELTA = -0.01f;
         public const float LAYER_DEFAULT = 1f;
 
@@ -159,7 +161,9 @@ namespace BlisterUI.Widgets {
             AddAllDrawables(renderer);
         }
         public void Dispose() {
+            OnRecompute = null;
             RemoveAllDrawables(renderer);
+            DisposeOther();
         }
         protected abstract void DisposeOther();
 
